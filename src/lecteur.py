@@ -49,7 +49,7 @@ if __name__ == '__main__' :
         redessine_quadrilateres_et_peres(frame)
         cv2.imshow('frame',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            cv2.imwrite('img/capture.jpg', frame)
+            cv2.imwrite('img/capture.jpg', frame2)
             cv2.imwrite('img/capture_contours.jpg', frame)
             break
     cap.release()
