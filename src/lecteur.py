@@ -39,7 +39,7 @@ def redessine_quadrilateres_et_peres(image):
             
 if __name__ == '__main__' :
     cap = cv2.VideoCapture(0)
-    #image = cv2.imread('/img/output.jpg')
+    #image = cv2.imread('img/output.jpg')
     #print image
     #redessine_quadrilateres_et_peres(image)
     #cv2.imshow('example',image)
