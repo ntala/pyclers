@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import cv2
+import numpy as np
 
 def est_quadrilatere(contour):
     peri = cv2.arcLength(contour, True)
@@ -9,7 +10,7 @@ def est_quadrilatere(contour):
 
 def get_contours_topologie(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    mystere, threshold = cv2.threshold(gray,150,255,cv2.THRESH_BINARY)
+    mystere, threshold = cv2.threshold(gray,100,255,cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     return (contours, hierarchy)
 
@@ -37,12 +38,19 @@ def redessine_quadrilateres_et_peres(image):
                 pass
             
 if __name__ == '__main__' :
-    cap = cv2.VideoCapture(0)                
+    cap = cv2.VideoCapture(0)
+    #image = cv2.imread('/img/output.jpg')
+    #print image
+    #redessine_quadrilateres_et_peres(image)
+    #cv2.imshow('example',image)
     while(True):
         ret, frame = cap.read()
+        frame2 = frame.copy()
         redessine_quadrilateres_et_peres(frame)
         cv2.imshow('frame',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.imwrite('img/capture.jpg', frame)
+            cv2.imwrite('img/capture_contours.jpg', frame)
             break
     cap.release()
     cv2.destroyAllWindows()
