@@ -43,6 +43,7 @@ if __name__ == '__main__' :
     #print image
     #redessine_quadrilateres_et_peres(image)
     #cv2.imshow('example',image)
+    #cv2.waitKey(0)
     while(True):
         ret, frame = cap.read()
         frame2 = frame.copy()
