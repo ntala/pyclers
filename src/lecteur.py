@@ -4,7 +4,7 @@ import cv2
 def est_quadrilatere(contour):
     peri = cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
-    res = len(approx) == 4
+    res = len(approx) == 4 and peri > 10
     return res
 
 def get_contours_topologie(image):
@@ -19,11 +19,28 @@ def redessine_quadrilateres(image):
         if est_quadrilatere(contour) :
             cv2.drawContours(image, contour,-1,(0,0,2555),2)
     
+def redessine_quadrilateres_et_peres(image):
+    contours, hierarchy = get_contours_topologie(image)
+    print hierarchy[0]
+    for rang, contour in enumerate(contours) : 
+        if est_quadrilatere(contour) :
+            cv2.drawContours(image, contour,-1,(0,0,2555),2)
+            print rang
+            #print contours[rang]
+            print hierarchy[0][rang]
+            try :
+                rang_pere = hierarchy[0][rang][3]
+                if rang_pere != -1 :
+                    pere = contours[rang_pere]
+                    cv2.drawContours(image,pere,-1,(0,255,0),2)
+            except :
+                pass
+            
 if __name__ == '__main__' :
     cap = cv2.VideoCapture(0)                
     while(True):
         ret, frame = cap.read()
-        redessine_quadrilateres(frame)
+        redessine_quadrilateres_et_peres(frame)
         cv2.imshow('frame',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
