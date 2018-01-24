@@ -4,9 +4,11 @@ import numpy as np
 
 def get_contours_topologie(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # A VOIR : le lissage est-il utile ?
     blurred = cv2.blur(gray,(3,3))
+    # A VOIR : les paramètres de l'algo. de canny sont-ils optimaux ?
     ced_image = cv2.Canny(blurred,100,180)
-    cv2.imshow('canny', ced_image)
+    #cv2.imshow('canny', ced_image)
     contours, hierarchy = cv2.findContours(ced_image, cv2.RETR_TREE,
                                             cv2.CHAIN_APPROX_NONE)
     return (contours, hierarchy)
@@ -15,11 +17,16 @@ def redessine_quadrilateres_et_peres(image):
     contours, hierarchy = get_contours_topologie(image)
     for rang, contour in enumerate(contours) :
         topologie = hierarchy[0][rang]
+        # le test suivant vérifie que le contour ne contient pas
+        # de contour, a un père et est le seul contour contenu 
+        # par son père.
         if topologie[0] == -1 and topologie[1] == -1 \
         and topologie[2] == -1 and topologie[3] != -1:
             rang_pere = topologie[3]
             pere = contours[rang_pere]
             topologie_pere = hierarchy[0][rang_pere]
+            # les contours rectangles qui m'intéressent sont 
+            # 'souvent' inclus dans eux-même
             rang_grand_pere = topologie_pere[3]
             if rang_grand_pere != -1 :
                 grand_pere = contours[rang_grand_pere] 
