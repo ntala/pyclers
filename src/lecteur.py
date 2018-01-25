@@ -12,8 +12,14 @@ def get_contours_topologie(image):
     contours, hierarchy = cv2.findContours(ced_image, cv2.RETR_TREE,
                                             cv2.CHAIN_APPROX_NONE)
     return (contours, hierarchy)
-    
-def redessine_quadrilateres_et_peres(image):
+
+def encadrement_motif(contour):
+    rect = cv2.minAreaRect(contour)
+    box = cv2.cv.BoxPoints(rect) # cv2.boxPoints(rect) for OpenCV 3.x
+    box = np.int0(box)
+    return [box]
+
+def encadre_motifs(image):
     contours, hierarchy = get_contours_topologie(image)
     for rang, contour in enumerate(contours) :
         topologie = hierarchy[0][rang]
@@ -29,14 +35,15 @@ def redessine_quadrilateres_et_peres(image):
             # 'souvent' inclus dans eux-même
             rang_grand_pere = topologie_pere[3]
             if rang_grand_pere != -1 :
-                grand_pere = contours[rang_grand_pere] 
-                cv2.drawContours(image, contour,-1,(0,0,2555),2)
-                cv2.drawContours(image,grand_pere,-1,(0,255,0),2)
+                grand_pere = contours[rang_grand_pere]
+                rectangle = encadrement_motif(grand_pere)
+                cv2.drawContours(image, encadrement_motif(grand_pere),
+                                 -1,(0,255,0), 2)
             
 if __name__ == '__main__' :
     image = cv2.imread('img/plickerexample.jpg')
     cv2.imwrite('img/test2/capture.jpg', image)
-    redessine_quadrilateres_et_peres(image)
+    encadre_motifs(image)
     cv2.imshow('example',image)
     cv2.imwrite('img/test2/capture_contours.jpg', image)
     cv2.waitKey(0)
@@ -46,8 +53,8 @@ if __name__ == '__main__' :
         retour, frame = cap.read()
         frame2 = frame.copy()
         ced_image = cv2.Canny(frame,100,180)
-        redessine_quadrilateres_et_peres(frame)
-        cv2.imshow('canny',ced_image)
+        encadre_motifs(frame)
+        #cv2.imshow('canny',ced_image)
         cv2.imshow('contours',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             #cv2.imwrite('img/capture.jpg', frame2)
