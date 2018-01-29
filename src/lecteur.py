@@ -75,7 +75,7 @@ def extrait_motif(image, box, nom_fichier) :
     print 'code ' + nom_fichier
     for l in code :
         print l
-    cv2.imshow(nom_fichier,zone_contrastee)
+    #cv2.imshow(nom_fichier,zone_contrastee)
 
 def encadre_motifs(image):
     contours, hierarchy, gris = get_contours_topologie(image)
@@ -140,7 +140,8 @@ if __name__ == '__main__' :
         retour, frame = cap.read()
         frame2 = frame.copy()
         ced_image = cv2.Canny(frame,100,180)
-        encadre_motifs(frame)
+        #encadre_motifs(frame)
+        encadre_et_extrait_motifs(frame)
         #cv2.imshow('canny',ced_image)
         cv2.imshow('contours',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
