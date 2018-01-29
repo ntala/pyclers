@@ -15,10 +15,8 @@ def get_contours_topologie(image):
 
 def encadrement_motif(contour):
     rect = cv2.minAreaRect(contour)
-    print rect
     box = cv2.cv.BoxPoints(rect) # cv2.boxPoints(rect) for OpenCV 3.x
     box = np.int0(box)
-    print box
     return [box]
 
 def marque_sommet(coordonnees,image,couleur):
@@ -30,20 +28,55 @@ def marque_sommets(box,image) :
     # le premier sommet doit-être situé en bas à gauche du rectangle
     if sommets[3][1] < sommets[1][1] :
         sommets = (sommets[1], sommets[2], sommets[3], sommets[0])
-    for couleur, sommet in zip(couleurs,sommets):
+    for couleur, sommet in zip(couleurs,sommets[:3]):
         marque_sommet(sommet,image,couleur)
 
-def extrait_motif(image, box,nom_fichier) :
+def extrait_motif(image, box, nom_fichier) :
     sommets = [tuple(sommet) for sommet in box[0]]
     xmin = min(sommets, key = lambda t: t[0])[0]
     xmax = max(sommets, key = lambda t: t[0])[0]
     ymin = min(sommets, key = lambda t: t[1])[1]
     ymax = max(sommets, key = lambda t: t[1])[1]
-    #print [xmin, xmax, ymin, ymax]
     zone = image[ymin:ymax,xmin:xmax]
-    print zone
-    cv2.imshow(nom_fichier,zone)
-    
+    depart = np.float32(tuple(map(lambda t: (t[0]-xmin, t[1]-ymin),
+                                    sommets[:3])))
+    cible = np.float32(((10,210),(10,10),(210,10)))
+    mat = cv2.getAffineTransform(depart,cible)
+    zone_redressee = cv2.warpAffine(zone,mat,(210,210))
+    #depart = np.float32(tuple(map(lambda t: (t[0]-xmin, t[1]-ymin),
+                                    #sommets)))
+    #cible = np.float32(((10,210),(10,10),(210,10),(210,210)))
+    #mat = cv2.getPerspectiveTransform(depart,cible)
+    #zone_redressee = cv2.warpPerspective(zone,mat,(210,210))
+    zone_contrastee = cv2.threshold(zone_redressee,
+                                   180,
+                                   255,
+                                   cv2.THRESH_BINARY)[1]
+    ECART = 5
+    code = [[0,0,0,0,0],
+            [0,0,0,0,0],
+            [0,0,0,0,0],
+            [0,0,0,0,0],
+            [0,0,0,0,0]]
+    for i in xrange(5) :
+        for j in xrange(5) :
+            xmin = 10+40*i+ECART
+            xmax = 10+40*(i+1)-ECART
+            ymin = 10+40*j+ECART
+            ymax = 10+40*(j+1)-ECART
+            zone = zone_contrastee[ymin:ymax,xmin:xmax]
+            
+            if cv2.mean(zone)[0]>127 :
+                code[j][i] = 1
+            cv2.rectangle(zone_contrastee,
+                          (10+40*i+ECART,10+ECART+40*j),
+                          (10+40*(i+1)-ECART,10+40*(j+1)-ECART),
+                          (255,255,255))
+    print 'code ' + nom_fichier
+    for l in code :
+        print l
+    cv2.imshow(nom_fichier,zone_contrastee)
+
 def encadre_motifs(image):
     contours, hierarchy, gris = get_contours_topologie(image)
     for rang, contour in enumerate(contours) :
