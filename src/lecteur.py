@@ -3,6 +3,12 @@ import cv2
 import numpy as np
 
 def get_contours_topologie(image):
+    '''
+    Prend en paramètre une image couleur en BGR et retourne :
+    - la liste des contours détectés
+    - leur topologie (arbre d'inclusion)
+    - l'image convertie en niveau de gris
+    '''
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # A VOIR : le lissage est-il utile ?
     blurred = cv2.blur(gray,(3,3))
@@ -14,24 +20,48 @@ def get_contours_topologie(image):
     return (contours, hierarchy, gray)
 
 def encadrement_motif(contour):
+    '''
+    Prend en paramètre une tableau de points et retourne :
+    le tableau des sommets du rectangle encadrant au mieux le contour.
+    '''
     rect = cv2.minAreaRect(contour)
     box = cv2.cv.BoxPoints(rect) # cv2.boxPoints(rect) for OpenCV 3.x
     box = np.int0(box)
     return [box]
 
 def marque_sommet(coordonnees,image,couleur):
+    """
+    Prend en paramètre les coordonnées d'un point, une image au format
+    BGR et une couleur au format (B,G,R) et inscrit dans l'image un 
+    disque sur le point dont les coordonnées ont été données, dans la 
+    couleur indiquée.
+    """
     cv2.circle(image, coordonnees, 3, couleur,-1)
     
-def marque_sommets(box,image) :
+def marque_sommets(cadre,image) :
+    '''
+    Prend en paramètres un rectangle sous forme de tableau de points 
+    et une image au format BGR et marque d'un disque respectivement 
+    noir, bleu, rouge et jaune les quatre sommets du rectangle, en 
+    commençant par le sommet le plus à gauche du côté le plus bas et en 
+    tournant dans le sens des aiguilles d'une montre.
+    '''
     couleurs = [(0,0,0),(255,0,0),(0,0,255),(0,255,255)]
-    sommets = [tuple(sommet) for sommet in box[0]]
+    sommets = [tuple(sommet) for sommet in cadre[0]]
     # le premier sommet doit-être situé en bas à gauche du rectangle
     if sommets[3][1] < sommets[1][1] :
         sommets = (sommets[1], sommets[2], sommets[3], sommets[0])
-    for couleur, sommet in zip(couleurs,sommets[:3]):
+    for couleur, sommet in zip(couleurs,sommets):
         marque_sommet(sommet,image,couleur)
 
 def extrait_motif(image, box, nom_fichier) :
+    """
+    Prend en paramètre une image en nuance de gris, un rectangle sous 
+    forme du tableau de sommets supposé encadrer un panneau et un nom de
+    fichier.
+    Affiche l'image du panneau redressée et découpée en rectangles 
+    significatifs et retourne la "matrice" résumant le panneau.
+    """
     sommets = [tuple(sommet) for sommet in box[0]]
     xmin = min(sommets, key = lambda t: t[0])[0]
     xmax = max(sommets, key = lambda t: t[0])[0]
@@ -43,15 +73,14 @@ def extrait_motif(image, box, nom_fichier) :
     cible = np.float32(((10,210),(10,10),(210,10)))
     mat = cv2.getAffineTransform(depart,cible)
     zone_redressee = cv2.warpAffine(zone,mat,(210,210))
-    #depart = np.float32(tuple(map(lambda t: (t[0]-xmin, t[1]-ymin),
-                                    #sommets)))
-    #cible = np.float32(((10,210),(10,10),(210,10),(210,210)))
-    #mat = cv2.getPerspectiveTransform(depart,cible)
-    #zone_redressee = cv2.warpPerspective(zone,mat,(210,210))
     zone_contrastee = cv2.threshold(zone_redressee,
-                                   180,
+                                   80,
                                    255,
                                    cv2.THRESH_BINARY)[1]
+    #zone_contrastee = cv2.adaptiveThreshold(zone_redressee,
+                                            #255,
+                                            #cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                            #cv2.THRESH_BINARY,11,2)
     ECART = 5
     code = [[0,0,0,0,0],
             [0,0,0,0,0],
@@ -72,33 +101,9 @@ def extrait_motif(image, box, nom_fichier) :
                           (10+40*i+ECART,10+ECART+40*j),
                           (10+40*(i+1)-ECART,10+40*(j+1)-ECART),
                           (255,255,255))
-    print 'code ' + nom_fichier
-    for l in code :
-        print l
-    #cv2.imshow(nom_fichier,zone_contrastee)
+    cv2.imshow(nom_fichier,zone_contrastee)
+    return code
 
-def encadre_motifs(image):
-    contours, hierarchy, gris = get_contours_topologie(image)
-    for rang, contour in enumerate(contours) :
-        topologie = hierarchy[0][rang]
-        # le test suivant vérifie que le contour ne contient pas
-        # de contour, a un père et est le seul contour contenu 
-        # par son père.
-        if topologie[0] == -1 and topologie[1] == -1 \
-        and topologie[2] == -1 and topologie[3] != -1:
-            rang_pere = topologie[3]
-            pere = contours[rang_pere]
-            topologie_pere = hierarchy[0][rang_pere]
-            # les contours rectangles qui m'intéressent sont 
-            # 'souvent' inclus dans eux-même
-            rang_grand_pere = topologie_pere[3]
-            if rang_grand_pere != -1 :
-                grand_pere = contours[rang_grand_pere]
-                rectangle = encadrement_motif(grand_pere)
-                cv2.drawContours(image, encadrement_motif(grand_pere),
-                                 -1,(0,255,0), 2)
-                marque_sommets(rectangle,image)
-                
 def encadre_et_extrait_motifs(image):
     contours, hierarchy, gris = get_contours_topologie(image)
     for rang, contour in enumerate(contours) :
@@ -117,24 +122,18 @@ def encadre_et_extrait_motifs(image):
             if rang_grand_pere != -1 :
                 grand_pere = contours[rang_grand_pere]
                 rectangle = encadrement_motif(grand_pere)
-                cv2.drawContours(image, encadrement_motif(grand_pere),
+                cv2.drawContours(image, rectangle,
                                  -1,(0,255,0), 2)
                 marque_sommets(rectangle,image)
-                extrait_motif(gris,rectangle, 'signal'+str(rang))
+                if cv2.contourArea(grand_pere) > 400 :
+                    matrice = extrait_motif(gris,rectangle, 'signal')
+                    print 'matrice'
+                    for l in matrice :
+                        print l
+                #cv2.imshow('signal'+str(rang),image)
                 
 if __name__ == '__main__' :
-    image = cv2.imread('img/plickerexample.jpg')
-    cv2.imwrite('img/test2/capture.jpg', image)
-    encadre_et_extrait_motifs(image)
-    cv2.imshow('example',image)
-    cv2.imwrite('img/test2/capture_contours.jpg', image)
-    cv2.waitKey(0)
-    
-    image = cv2.imread('img/output.jpg')
-    encadre_et_extrait_motifs(image)
-    cv2.imshow('example',image)
-    cv2.waitKey(0)
-    
+    cv2.waitKey(1)
     cap = cv2.VideoCapture(0)
     while(True):
         retour, frame = cap.read()
