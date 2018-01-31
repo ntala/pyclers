@@ -125,11 +125,11 @@ def encadre_et_extrait_motifs(image):
                 cv2.drawContours(image, rectangle,
                                  -1,(0,255,0), 2)
                 marque_sommets(rectangle,image)
-                if cv2.contourArea(grand_pere) > 400 :
-                    matrice = extrait_motif(gris,rectangle, 'signal')
-                    print 'matrice'
-                    for l in matrice :
-                        print l
+                #if cv2.contourArea(grand_pere) > 400 :
+                matrice = extrait_motif(gris,rectangle, 'signal')
+                print 'matrice'
+                for l in matrice :
+                    print l
                 #cv2.imshow('signal'+str(rang),image)
                 
 if __name__ == '__main__' :
