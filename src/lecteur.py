@@ -63,6 +63,9 @@ def extrait_motif(image, box, nom_fichier) :
     significatifs et retourne la "matrice" résumant le panneau.
     """
     sommets = [tuple(sommet) for sommet in box[0]]
+    # le premier sommet doit-être situé en bas à gauche du rectangle
+    if sommets[3][1] < sommets[1][1] :
+        sommets = (sommets[1], sommets[2], sommets[3], sommets[0])
     xmin = min(sommets, key = lambda t: t[0])[0]
     xmax = max(sommets, key = lambda t: t[0])[0]
     ymin = min(sommets, key = lambda t: t[1])[1]
@@ -116,7 +119,7 @@ def encadre_et_extrait_motifs(image):
             rang_pere = topologie[3]
             pere = contours[rang_pere]
             topologie_pere = hierarchy[0][rang_pere]
-            # les contours rectangles qui m'intéressent sont 
+            # les contours rectangles qui m'intéressent sont '
             # 'souvent' inclus dans eux-même
             rang_grand_pere = topologie_pere[3]
             if rang_grand_pere != -1 :
@@ -125,11 +128,11 @@ def encadre_et_extrait_motifs(image):
                 cv2.drawContours(image, rectangle,
                                  -1,(0,255,0), 2)
                 marque_sommets(rectangle,image)
-                #if cv2.contourArea(grand_pere) > 400 :
-                matrice = extrait_motif(gris,rectangle, 'signal')
-                print 'matrice'
-                for l in matrice :
-                    print l
+                if cv2.contourArea(grand_pere) > 400 :
+                    matrice = extrait_motif(gris,rectangle, 'signal')
+                    print 'matrice'
+                    for l in matrice :
+                        print l
                 #cv2.imshow('signal'+str(rang),image)
                 
 if __name__ == '__main__' :
