@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import os, os.path, cv2
 
-from lecteur import encadre_et_extrait_motifs
+from lecteur import encadre_et_extrait_motifs, extrait_matrice, \
+                     code_depuis_matrice
+
+
 
 A = 'A'
 B = 'B'
@@ -10,11 +13,6 @@ D = 'D'
 
 liste_initiale = [B,D,D,D,A,A,A,B,A,D,C,D,A,B,A,C,D,C,D,D,B,B,A,B,C,
                   D,B,B,D,B,C,B,C,C,C,B,B,C,D,A]
-                  
-liste_fichiers = os.listdir('img/reference')
-liste_fichiers.sort()
-
-print liste_fichiers
 
 
 def cycle(lettre):
@@ -30,26 +28,28 @@ def cycle(lettre):
 def rotation(matrice):                              
     return [[matrice[i][4-j] for i in range(5)] for j in range(5)]
 
+def declinaisons_panneau(panneau, chemin_image, lettre):
+    res = {}
+    lettres = cycle(lettre)
+    image = cv2.imread(chemin_image)
+    matrice_initiale = encadre_et_extrait_motifs(image)[0]
+    matrices = [matrice_initiale,
+                rotation(matrice_initiale),
+                rotation(rotation(matrice_initiale)),
+                rotation(rotation(rotation(matrice_initiale)))
+                ]
+    for lettre_courante, matrice in zip(lettres, matrices) :
+        cle = code_depuis_matrice(matrice)
+        res.update({cle : (panneau, lettre_courante)})
+    return res
+
 if __name__ == '__main__' :
-    from random import randint
-    matrice_1 = [[randint(0,1) for j in range(5)] for i in range(5)]
-
-    for l in matrice_1 : 
-        print l
-
-    print ''        
-
-    matrice_2 = rotation(matrice_1)
-    
-    for l in matrice_2 : 
-        print l
+    catalogue = {}
     os.chdir('img/reference/')
-    listefichier = os.listdir(os.path.curdir)
-    i=0
-    for fichier in liste_fichiers :
-        print str(2*i+1) + ' ' + str(2*i+2)
-        image = cv2.imread(fichier)
-        encadre_et_extrait_motifs(image)
-        i=i+1
-        cv2.imshow(str(i),image)
-        cv2.waitKey(0)
+    liste_fichiers = os.listdir(os.path.curdir)
+    liste_fichiers.sort()
+    for i,fichier,lettre_initiale in zip(xrange(len(liste_fichiers)),
+                                         liste_fichiers,
+                                         liste_initiale):
+        catalogue.update(declinaisons_panneau(i+1,fichier,lettre_initiale))
+    print catalogue
