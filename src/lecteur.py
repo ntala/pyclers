@@ -131,10 +131,6 @@ if __name__ == '__main__' :
     print reconnait_panneaux(image)
     image = cv2.imread('img/capture4.jpg')
     print reconnait_panneaux(image)
-    image = cv2.imread('img/capture1.jpg')
-    print reconnait_panneaux(image)
-    image = cv2.imread('img/capture2.jpg')
-    print reconnait_panneaux(image)
     cap = cv2.VideoCapture(1)
     ###tant qu'il y a des noms d'eleves dans la liste
     while True:
