@@ -108,41 +108,31 @@ def reconnait_panneaux(image) :
     for identifiant in extrait_identifiants(image)\
     if CATALOGUE.get(identifiant)]
 
-#def scanner_en_direct(classe, camera=0):
-    #eleves_restant = classe
-    #cap = cv2.VideoCapture(camera)
-    #while eleves_restant != []:
-        #retour, frame = cap.read()
-        #cv2.imshow('capture',frame)
-        #if reconnait_panneaux(frame) :
-            #print reconnait_panneaux(frame) 
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-            ###cv2.imwrite('img/capture.jpg', frame2)
-            ###cv2.imwrite('img/capture_contours.jpg', frame)
-            ###cv2.imwrite('img/capture_canny.jpg', ced_image)
-            #break
-    #cap.release()
-    #cv2.destroyAllWindows()
+
+def scanner_en_direct(classe, camera=0):
+    # retirer les absents des élèves restant
+    eleves_restant = classe
+    cap = cv2.VideoCapture(camera)
+    while eleves_restant != []:
+        retour, frame = cap.read()
+        cv2.imshow('capture',frame)
+        if reconnait_panneaux(frame) :
+            print reconnait_panneaux(frame) 
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
     
 if __name__ == '__main__' :
+    classe = [
+    {'nom' : 'machin', 'prenom' : 'bidule'},
+    {'nom' : 'muche', 'prenom' : 'truc'}
+    ]
     image = cv2.imread('img/myphoto4.jpg')
     print reconnait_panneaux(image)
     image = cv2.imread('img/test_15B.jpg')
     print reconnait_panneaux(image)
     image = cv2.imread('img/capture4.jpg')
     print reconnait_panneaux(image)
-    cap = cv2.VideoCapture(1)
-    ###tant qu'il y a des noms d'eleves dans la liste
-    while True:
-        retour, frame = cap.read()
-        cv2.imshow('capture',frame)
-        if reconnait_panneaux(frame) :
-            print reconnait_panneaux(frame) 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            ##cv2.imwrite('img/capture.jpg', frame2)
-            ##cv2.imwrite('img/capture_contours.jpg', frame)
-            ##cv2.imwrite('img/capture_canny.jpg', ced_image)
-            break
-    cap.release()
-    cv2.destroyAllWindows()
+    scanner_en_direct(classe,1)
 
