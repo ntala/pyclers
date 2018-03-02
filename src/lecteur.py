@@ -142,34 +142,6 @@ def releve_absents(classe):
     print eleves_restant
     return eleves_restant
     
-#def affiche_eleves_restant(liste):
-    #fenetre = Tk.Tk()
-    #for eleve in liste :
-        #etiquette = Tk.Label(text = eleve['nom'] + ' ' + eleve['prenom'])
-        #etiquette.pack()
-    #fenetre.mainloop()
-
-#def affiche_eleves_restant(liste):
-    #fenetre = Tk.Tk()
-    #cadre = Tk.Frame(fenetre)
-    #for eleve in liste :
-        #etiquette = Tk.Label(cadre,text = eleve['nom'] + ' ' + eleve['prenom'])
-        #etiquette.pack()
-    #cadre.pack()
-    
-    #def met_a_jour_liste():
-        #cadre.destroy()
-        #cadre = Tk.Frame(fenetre)
-        #etiquette = Tk.Label(cadre,text = 'toto')
-        #etiquette.pack()
-        #for eleve in liste :
-            #etiquette = Tk.Label(cadre,text = eleve['nom'] + ' ' + eleve['prenom'])
-            #etiquette.pack()
-        #cadre.pack()
-        
-    #fenetre.after(5, met_a_jour_liste)
-    #fenetre.mainloop()
-    
 def affiche_eleves_restant(liste):
     fenetre = Tk.Tk()
     cadre = Tk.Frame(fenetre)
@@ -209,7 +181,6 @@ def scanne_flux_video(eleves_restant,classe,camera):
     cv2.destroyAllWindows()
     
 def scanner_en_direct(classe, camera=0):
-    fenetres = []
     eleves_restant = releve_absents(classe_test)
     t = threading.Thread(target=affiche_eleves_restant,
                          args=(eleves_restant,))
