@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-import cv2
-import numpy as np
+import threading
 import os
 from itertools import product
+
 import Tkinter as Tk
+import cv2
+import numpy as np
+
 from data_reference import CATALOGUE, classe_test
 
 def get_contours_topologie(image):
@@ -139,20 +142,22 @@ def releve_absents(classe):
     print eleves_restant
     return eleves_restant
     
-#def affiche_eleves_restant(liste):
-    #fenetre = Tk.Tk()
-    #for eleve in liste :
-        #etiquette = Tk.Label(text = eleve['nom'] + ' ' + eleve['prenom'])
-        #etiquette.pack()
-        
-def scanner_en_direct(classe, camera=0):
-    reponses = []
-    eleves_restant = releve_absents(classe_test)
-    affichage_eleves_restant = Tk.Tk()
-    for eleve in eleves_restant :
+def affiche_eleves_restant(liste):
+    fenetre = Tk.Tk()
+    for eleve in liste :
         etiquette = Tk.Label(text = eleve['nom'] + ' ' + eleve['prenom'])
         etiquette.pack()
-    affichage_eleves_restant.mainloop()
+    fenetre.mainloop()
+
+def affiche_eleves_restant(liste):
+    fenetre = Tk.Tk()
+    for eleve in liste :
+        etiquette = Tk.Label(text = eleve['nom'] + ' ' + eleve['prenom'])
+        etiquette.pack()
+    fenetre.mainloop()
+    
+def scanne_flux_video(eleves_restant,classe,camera):
+    reponses = []
     cap = cv2.VideoCapture(camera)
     # with eleves_restant as listing :
     while eleves_restant != []:
@@ -169,6 +174,14 @@ def scanner_en_direct(classe, camera=0):
     cap.release
     print reponses
     cv2.destroyAllWindows()
+    
+def scanner_en_direct(classe, camera=0):
+    fenetres = []
+    eleves_restant = releve_absents(classe_test)
+    t = threading.Thread(target=affiche_eleves_restant,
+                         args=(eleves_restant,))
+    t.start()
+    scanne_flux_video(eleves_restant, classe, camera)
 
     
 if __name__ == '__main__' :
