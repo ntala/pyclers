@@ -3,7 +3,8 @@ import cv2
 import numpy as np
 import os
 from itertools import product
-from data_reference import CATALOGUE
+import Tkinter as Tk
+from data_reference import CATALOGUE, classe_test
 
 def get_contours_topologie(image):
     '''
@@ -108,31 +109,75 @@ def reconnait_panneaux(image) :
     for identifiant in extrait_identifiants(image)\
     if CATALOGUE.get(identifiant)]
 
-
+def releve_absents(classe):
+    """
+    Prend en paramètre la liste des élèves d'une classe.
+    Invite l'utilisateur à cocher les absents via une fenêtre Tkinter.
+    Renvoie la liste des élèves effectivement présents.
+    """
+    fenetre = Tk.Tk()
+    for eleve in classe :
+        presence = Tk.IntVar()
+        presence.set(1)
+        eleve.update({'present': presence})
+        bouton = Tk.Checkbutton(fenetre, 
+                            text = eleve['nom'] + ' ' + eleve['prenom'],
+                            onvalue = 0, offvalue = 1,
+                            variable = eleve['present'],
+                            justify = Tk.RIGHT)
+        bouton.pack(anchor = "w")
+    def valider_saisie():
+        fenetre.quit()
+        fenetre.destroy()
+    bouton = Tk.Button(fenetre, text="Valider", command=valider_saisie)
+    bouton.pack()
+    fenetre.mainloop()
+    #préparation de la liste des élèves restant avant son renvoi
+    eleves_restant = [el for el in classe if el['present'].get()]
+    for eleve in eleves_restant :
+        eleve.pop('present')
+    print eleves_restant
+    return eleves_restant
+    
+#def affiche_eleves_restant(liste):
+    #fenetre = Tk.Tk()
+    #for eleve in liste :
+        #etiquette = Tk.Label(text = eleve['nom'] + ' ' + eleve['prenom'])
+        #etiquette.pack()
+        
 def scanner_en_direct(classe, camera=0):
-    # retirer les absents des élèves restant
-    eleves_restant = classe
+    reponses = []
+    eleves_restant = releve_absents(classe_test)
+    affichage_eleves_restant = Tk.Tk()
+    for eleve in eleves_restant :
+        etiquette = Tk.Label(text = eleve['nom'] + ' ' + eleve['prenom'])
+        etiquette.pack()
+    affichage_eleves_restant.mainloop()
     cap = cv2.VideoCapture(camera)
+    # with eleves_restant as listing :
     while eleves_restant != []:
         retour, frame = cap.read()
         cv2.imshow('capture',frame)
-        if reconnait_panneaux(frame) :
-            print reconnait_panneaux(frame) 
+        for identifiant, reponse in reconnait_panneaux(frame) :
+            if classe[identifiant-1] in eleves_restant :
+                reponses.append((identifiant,reponse))
+                rang_eleve = eleves_restant.index(classe[identifiant-1])
+                eleves_restant.pop(rang_eleve)
+                print eleves_restant
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-    cap.release()
+    cap.release
+    print reponses
     cv2.destroyAllWindows()
+
     
 if __name__ == '__main__' :
-    classe = [
-    {'nom' : 'machin', 'prenom' : 'bidule'},
-    {'nom' : 'muche', 'prenom' : 'truc'}
-    ]
     image = cv2.imread('img/myphoto4.jpg')
     print reconnait_panneaux(image)
     image = cv2.imread('img/test_15B.jpg')
     print reconnait_panneaux(image)
     image = cv2.imread('img/capture4.jpg')
     print reconnait_panneaux(image)
-    scanner_en_direct(classe,1)
+    scanner_en_direct(classe_test,1)
+    
 
