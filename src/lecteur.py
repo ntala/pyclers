@@ -52,34 +52,37 @@ def extrait_identifiant(image,box):
     xmax = max(sommets, key = lambda t: t[0])[0]
     ymin = min(sommets, key = lambda t: t[1])[1]
     ymax = max(sommets, key = lambda t: t[1])[1]
-    zone = image[ymin:ymax,xmin:xmax]
-    depart = np.float32(tuple(map(lambda t: (t[0]-xmin, t[1]-ymin),
+    if xmax > xmin and ymax > ymin :
+        zone = image[ymin:ymax,xmin:xmax]
+        depart = np.float32(tuple(map(lambda t: (t[0]-xmin, t[1]-ymin),
                                     sommets[:3])))
-    cible = np.float32(((0,200),(0,0),(200,0)))
-    mat = cv2.getAffineTransform(depart,cible)
-    zone_redressee = cv2.warpAffine(zone,mat,(200,200))
-    zone_contrastee = cv2.threshold(zone_redressee,
-                                   80,
-                                   255,
-                                   cv2.THRESH_BINARY)[1]
-    ECART = 5
-    for j in xrange(5) :
-        for i in xrange(5) :
-            xmin = 40*i+ECART
-            xmax = 40*(i+1)-ECART
-            ymin = 40*j+ECART
-            ymax = 40*(j+1)-ECART
-            zone = zone_contrastee[ymin:ymax,xmin:xmax]
-            
-            if cv2.mean(zone)[0]>127 :
-                str_code += '0';
-            else:
-                str_code += '1';
-            cv2.rectangle(zone_contrastee,
-                          (40*i+ECART,ECART+40*j),
-                          (40*(i+1)-ECART,40*(j+1)-ECART),
-                          (255,255,255))
-    int_ret = int(str_code,2)  
+        cible = np.float32(((0,200),(0,0),(200,0)))
+        mat = cv2.getAffineTransform(depart,cible)
+        zone_redressee = cv2.warpAffine(zone,mat,(200,200))
+        zone_contrastee = cv2.threshold(zone_redressee,
+                                        80,
+                                        255,
+                                        cv2.THRESH_BINARY)[1]
+        ECART = 5
+        for j in xrange(5) :
+            for i in xrange(5) :
+                xmin = 40*i+ECART
+                xmax = 40*(i+1)-ECART
+                ymin = 40*j+ECART
+                ymax = 40*(j+1)-ECART
+                zone = zone_contrastee[ymin:ymax,xmin:xmax]
+                
+                if cv2.mean(zone)[0]>127 :
+                    str_code += '0';
+                else:
+                    str_code += '1';
+                cv2.rectangle(zone_contrastee,
+                              (40*i+ECART,ECART+40*j),
+                              (40*(i+1)-ECART,40*(j+1)-ECART),
+                              (255,255,255))
+        int_ret = int(str_code,2)
+    else :
+        int_ret = 0
     return int_ret
 
 def extrait_identifiants(image):
@@ -139,7 +142,7 @@ def releve_absents(classe):
     bouton = Tk.Button(fenetre, text="Valider", command=valider_saisie)
     bouton.pack()
     fenetre.mainloop()
-    #préparation de la liste des élèves restant avant son renvoi
+    #remise en forme de la liste des élèves restant
     eleves_restant = [el for el in classe if el['present'].get()]
     for eleve in eleves_restant :
         eleve.pop('present')
@@ -175,12 +178,12 @@ def scanne_flux_video(classe,camera):
     global eleves_restant
     reponses = []
     cap = cv2.VideoCapture(camera)
-    # with eleves_restant as listing :
     while eleves_restant != []:
         retour, frame = cap.read()
         cv2.imshow('capture',frame)
         for identifiant, reponse in reconnait_panneaux(frame) :
-            if classe[identifiant-1] in eleves_restant :
+            if identifiant <= len(classe)\
+            and classe[identifiant-1] in eleves_restant :
                 reponses.append((identifiant,reponse))
                 rang_eleve = eleves_restant.index(classe[identifiant-1])
                 eleves_restant.pop(rang_eleve)
