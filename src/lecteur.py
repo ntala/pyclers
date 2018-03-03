@@ -7,7 +7,10 @@ import Tkinter as Tk
 import cv2
 import numpy as np
 
-from data_reference import CATALOGUE, classe_test
+from data_reference import CATALOGUE, CLASSE_TEST
+
+#variables globales
+eleves_restant = []
 
 def get_contours_topologie(image):
     '''
@@ -118,6 +121,7 @@ def releve_absents(classe):
     Invite l'utilisateur à cocher les absents via une fenêtre Tkinter.
     Renvoie la liste des élèves effectivement présents.
     """
+    global eleves_restant
     fenetre = Tk.Tk()
     for eleve in classe :
         presence = Tk.IntVar()
@@ -140,28 +144,34 @@ def releve_absents(classe):
     for eleve in eleves_restant :
         eleve.pop('present')
     print eleves_restant
-    return eleves_restant
     
-def affiche_eleves_restant(liste):
-    fenetre = Tk.Tk()
-    cadre = Tk.Frame(fenetre)
-    for eleve in liste :
-        etiquette = Tk.Label(cadre,text = eleve['nom'] + ' ' + eleve['prenom'])
+def affiche_eleves_restant():
+    affichage_eleves_restant = Tk.Tk()
+    cadre_eleves_restant = Tk.Frame(affichage_eleves_restant)
+    for eleve in eleves_restant :
+        etiquette = Tk.Label(cadre_eleves_restant,
+                        text = eleve['nom'] + ' ' + eleve['prenom'])
         etiquette.pack()
-    cadre.pack()
+    cadre_eleves_restant.pack()
     
-    def met_a_jour_liste(cadre=cadre):
+    def met_a_jour_liste(cadre=cadre_eleves_restant,
+                         fenetre=affichage_eleves_restant):
+        global eleves_restant
+        print fenetre.winfo_children()
+        cadre = fenetre.winfo_children()[0]
         cadre.destroy()
         cadre = Tk.Frame(fenetre)
-        for eleve in liste :
+        for eleve in eleves_restant :
             etiquette = Tk.Label(cadre,text = eleve['nom'] + ' ' + eleve['prenom'])
             etiquette.pack()
         cadre.pack()
+        fenetre.after(500, met_a_jour_liste)
         
-    fenetre.after(5, met_a_jour_liste)
-    fenetre.mainloop()
+    affichage_eleves_restant.after(500, met_a_jour_liste)
+    affichage_eleves_restant.mainloop()
     
-def scanne_flux_video(eleves_restant,classe,camera):
+def scanne_flux_video(classe,camera):
+    global eleves_restant
     reponses = []
     cap = cv2.VideoCapture(camera)
     # with eleves_restant as listing :
@@ -181,11 +191,11 @@ def scanne_flux_video(eleves_restant,classe,camera):
     cv2.destroyAllWindows()
     
 def scanner_en_direct(classe, camera=0):
-    eleves_restant = releve_absents(classe_test)
-    t = threading.Thread(target=affiche_eleves_restant,
-                         args=(eleves_restant,))
+    releve_absents(CLASSE_TEST)
+    t = threading.Thread(target=affiche_eleves_restant)
     t.start()
-    scanne_flux_video(eleves_restant, classe, camera)
+    scanne_flux_video(classe, camera)
+    t.join()
 
     
 if __name__ == '__main__' :
@@ -195,6 +205,6 @@ if __name__ == '__main__' :
     print reconnait_panneaux(image)
     image = cv2.imread('img/capture4.jpg')
     print reconnait_panneaux(image)
-    scanner_en_direct(classe_test,1)
+    scanner_en_direct(CLASSE_TEST,1)
     
 
