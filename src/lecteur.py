@@ -11,6 +11,7 @@ from data_reference import CATALOGUE, CLASSE_TEST
 
 #variables globales
 eleves_restant = []
+#reponses = [] # pour la suite
 
 def get_contours_topologie(image):
     '''
@@ -126,6 +127,7 @@ def releve_absents(classe):
     """
     global eleves_restant
     fenetre = Tk.Tk()
+    fenetre.title('ABSENTS')
     for eleve in classe :
         presence = Tk.IntVar()
         presence.set(1)
@@ -149,6 +151,7 @@ def releve_absents(classe):
     
 def affiche_eleves_restant():
     affichage_eleves_restant = Tk.Tk()
+    affichage_eleves_restant.title('À ÉVALUER')
     cadre_eleves_restant = Tk.Frame(affichage_eleves_restant)
     for eleve in eleves_restant :
         etiquette = Tk.Label(cadre_eleves_restant,
