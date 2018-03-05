@@ -38,7 +38,10 @@ def encadrement_contour(contour):
     box = np.int0(box)
     return [box]
 
-def extrait_identifiant(image,box):
+def extrait_identifiant(im_gris,
+                        box,
+                        image_affichee,
+                        classe = CLASSE_TEST):
     """
     Prend en paramètre une image en nuance de gris et un rectangle sous 
     forme du tableau de sommets supposé encadrer un panneau.
@@ -54,7 +57,7 @@ def extrait_identifiant(image,box):
     ymin = min(sommets, key = lambda t: t[1])[1]
     ymax = max(sommets, key = lambda t: t[1])[1]
     if xmax > xmin and ymax > ymin :
-        zone = image[ymin:ymax,xmin:xmax]
+        zone = im_gris[ymin:ymax,xmin:xmax]
         depart = np.float32(tuple(map(lambda t: (t[0]-xmin, t[1]-ymin),
                                     sommets[:3])))
         cible = np.float32(((0,200),(0,0),(200,0)))
@@ -82,6 +85,17 @@ def extrait_identifiant(image,box):
                               (40*(i+1)-ECART,40*(j+1)-ECART),
                               (255,255,255))
         int_ret = int(str_code,2)
+        # affichage de l'élève
+        ancre = sommets[0]
+        if CATALOGUE.get(int_ret):
+            rang_eleve = CATALOGUE.get(int_ret)[0]-1
+            texte = classe[rang_eleve]['prenom']
+            cv2.putText(image_affichee,
+                        texte,
+                        ancre,
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1.0,
+                        (0,0,255))
     else :
         int_ret = 0
     return int_ret
@@ -110,7 +124,7 @@ def extrait_identifiants(image):
                 grand_pere = contours[rang_grand_pere]
                 rectangle = encadrement_contour(grand_pere)
                 if cv2.contourArea(grand_pere) > 0 :
-                    res.append(extrait_identifiant(im_gris,rectangle))
+                    res.append(extrait_identifiant(im_gris,rectangle,image))
     return res
     
 
@@ -183,7 +197,7 @@ def scanne_flux_video(classe,camera):
     cap = cv2.VideoCapture(camera)
     while eleves_restant != []:
         retour, frame = cap.read()
-        cv2.imshow('capture',frame)
+        #cv2.imshow('capture',frame)
         for identifiant, reponse in reconnait_panneaux(frame) :
             if identifiant <= len(classe)\
             and classe[identifiant-1] in eleves_restant :
@@ -191,6 +205,7 @@ def scanne_flux_video(classe,camera):
                 rang_eleve = eleves_restant.index(classe[identifiant-1])
                 eleves_restant.pop(rang_eleve)
                 print eleves_restant
+        cv2.imshow('capture',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release
