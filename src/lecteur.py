@@ -89,13 +89,14 @@ def extrait_identifiant(im_gris,
         ancre = sommets[0]
         if CATALOGUE.get(int_ret):
             rang_eleve = CATALOGUE.get(int_ret)[0]-1
-            texte = classe[rang_eleve]['prenom']
-            cv2.putText(image_affichee,
-                        texte,
-                        ancre,
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0,
-                        (0,0,255))
+            if rang_eleve < len(classe):
+                texte = classe[rang_eleve]['prenom']
+                cv2.putText(image_affichee,
+                            texte,
+                            ancre,
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1.0,
+                            (0,0,255))
     else :
         int_ret = 0
     return int_ret
