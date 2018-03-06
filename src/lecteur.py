@@ -92,7 +92,7 @@ def extrait_identifiant(im_gris,
         if CATALOGUE.get(int_ret):
             rang_eleve = CATALOGUE.get(int_ret)[0]-1
             if rang_eleve < len(classe):
-                texte = classe[rang_eleve]['prenom']
+                texte = classe[rang_eleve]['prenom'].encode(encoding='UTF-8')
                 cv2.putText(image_affichee,
                             texte,
                             ancre,
