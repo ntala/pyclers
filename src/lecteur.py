@@ -7,7 +7,7 @@ import Tkinter as Tk
 import cv2
 import numpy as np
 
-from data_reference import CATALOGUE, CLASSE_TEST
+from data_reference import CATALOGUE, CLASSE_TEST, CLASSE_TEST_2
 
 #variables globales
 eleves_restant = []
@@ -45,6 +45,8 @@ def extrait_identifiant(im_gris,
     """
     Prend en paramètre une image en nuance de gris et un rectangle sous 
     forme du tableau de sommets supposé encadrer un panneau.
+    Affiche dans l'image_affichee, le prénom de l'élève censé manipuler
+    le panneau.
     Retourne l'entier identifiant le panneau.
     """
     str_code = ''
@@ -101,7 +103,7 @@ def extrait_identifiant(im_gris,
         int_ret = 0
     return int_ret
 
-def extrait_identifiants(image):
+def extrait_identifiants(image, classe = CLASSE_TEST):
     """
     extrait tous les panneaux détectés dans l'image et renvoie la liste
     des identifiants lus.
@@ -125,13 +127,16 @@ def extrait_identifiants(image):
                 grand_pere = contours[rang_grand_pere]
                 rectangle = encadrement_contour(grand_pere)
                 if cv2.contourArea(grand_pere) > 0 :
-                    res.append(extrait_identifiant(im_gris,rectangle,image))
+                    res.append(extrait_identifiant(im_gris,
+                                                rectangle,
+                                                image,
+                                                classe))
     return res
     
 
-def reconnait_panneaux(image) :
+def reconnait_panneaux(image, classe = CLASSE_TEST) :
     return [CATALOGUE.get(identifiant)\
-    for identifiant in extrait_identifiants(image)\
+    for identifiant in extrait_identifiants(image,classe)\
     if CATALOGUE.get(identifiant)]
 
 def releve_absents(classe):
@@ -199,7 +204,7 @@ def scanne_flux_video(classe,camera):
     while eleves_restant != []:
         retour, frame = cap.read()
         #cv2.imshow('capture',frame)
-        for identifiant, reponse in reconnait_panneaux(frame) :
+        for identifiant, reponse in reconnait_panneaux(frame, classe) :
             if identifiant <= len(classe)\
             and classe[identifiant-1] in eleves_restant :
                 reponses.append((identifiant,reponse))
@@ -220,6 +225,19 @@ def scanner_en_direct(classe, camera=0):
     scanne_flux_video(classe, camera)
     t.join()
 
+def main(camera = 0):
+    fenetre_principale = Tk.Tk()
+    fenetre_principale.title("Choix de la classe")
+    bouton_classe_1 = Tk.Button(fenetre_principale,
+                                text="Classe_test1",
+                                command=(lambda : scanner_en_direct(CLASSE_TEST,camera)))
+    
+    bouton_classe_2 = Tk.Button(fenetre_principale,
+                                text="Classe_test2",
+                                command=(lambda : scanner_en_direct(CLASSE_TEST_2,camera)))
+    bouton_classe_1.pack()
+    bouton_classe_2.pack()
+    fenetre_principale.mainloop()
     
 if __name__ == '__main__' :
     image = cv2.imread('img/myphoto4.jpg')
@@ -228,6 +246,7 @@ if __name__ == '__main__' :
     print reconnait_panneaux(image)
     image = cv2.imread('img/capture4.jpg')
     print reconnait_panneaux(image)
-    scanner_en_direct(CLASSE_TEST,1)
+    #scanner_en_direct(CLASSE_TEST,1)
+    main(1)
     
 

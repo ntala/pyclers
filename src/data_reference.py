@@ -41,4 +41,42 @@ CLASSE_TEST =[
     {'nom': u'Renaud', 'prenom': u'Gabrielle'}
     ]
 
-
+CLASSE_TEST_2 = [
+    {'nom': u'Alexandre', 'prenom': u'Alphonse'},
+    {'nom': u'Alexandre', 'prenom': u'Th\xe9ophile'},
+    {'nom': u'Antoine', 'prenom': u'Olivie'},
+    {'nom': u'Barre', 'prenom': u'Georges'},
+    {'nom': u'Begue', 'prenom': u'Claude'},
+    {'nom': u'Berthelot', 'prenom': u'Beno\xeet'},
+    {'nom': u'Bigot', 'prenom': u'Cl\xe9mence'},
+    {'nom': u'Bourdon', 'prenom': u'Jean'},
+    {'nom': u'Carre', 'prenom': u'Marthe'},
+    {'nom': u'Da Silva', 'prenom': u'Monique'},
+    {'nom': u'Etienne', 'prenom': u'Nathalie'},
+    {'nom': u'Fournier', 'prenom': u'Philippine'},
+    {'nom': u'Guichard', 'prenom': u'Ad\xe8le'},
+    {'nom': u'Guilbert', 'prenom': u'Simone'},
+    {'nom': u'Hamon', 'prenom': u'Nathalie'},
+    {'nom': u'Hoarau', 'prenom': u'Andr\xe9e'},
+    {'nom': u'Jacquot', 'prenom': u'Thibault'},
+    {'nom': u'Laine', 'prenom': u'Nicole'},
+    {'nom': u'Laroche', 'prenom': u'Christiane'},
+    {'nom': u'Lecomte', 'prenom': u'Danielle'},
+    {'nom': u'Leroy', 'prenom': u'Isaac'},
+    {'nom': u'Letellier', 'prenom': u'Matthieu'},
+    {'nom': u'Mallet', 'prenom': u'Cl\xe9mence'},
+    {'nom': u'Maury', 'prenom': u'Marcelle'},
+    {'nom': u'Neveu', 'prenom': u'Julien'},
+    {'nom': u'Nguyen', 'prenom': u'R\xe9my'},
+    {'nom': u'Noel', 'prenom': u'Joseph'},
+    {'nom': u'Normand', 'prenom': u'Gabriel'},
+    {'nom': u'Parent', 'prenom': u'Fran\xe7oise'},
+    {'nom': u'Pascal', 'prenom': u'Julie'},
+    {'nom': u'Paul', 'prenom': u'Robert'},
+    {'nom': u'Perrin', 'prenom': u'Arthur'},
+    {'nom': u'Renard', 'prenom': u'Michelle'},
+    {'nom': u'Ribeiro', 'prenom': u'Alexandre'},
+    {'nom': u'Rossi', 'prenom': u'Marthe'}
+    ]
+    
+    
