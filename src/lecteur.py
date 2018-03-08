@@ -7,6 +7,8 @@ import Tkinter as Tk
 import cv2
 import numpy as np
 
+import unicodedata
+
 from data_reference import CATALOGUE, CLASSE_TEST, CLASSE_TEST_2
 
 #variables globales
@@ -37,6 +39,11 @@ def encadrement_contour(contour):
     box = cv2.cv.BoxPoints(rect) # cv2.boxPoints(rect) for OpenCV 3.x
     box = np.int0(box)
     return [box]
+
+
+def unc(input_str):
+    nfkd_form = unicodedata.normalize('NFKD', input_str)
+    return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
 
 def extrait_identifiant(im_gris,
                         box,
@@ -92,7 +99,7 @@ def extrait_identifiant(im_gris,
         if CATALOGUE.get(int_ret):
             rang_eleve = CATALOGUE.get(int_ret)[0]-1
             if rang_eleve < len(classe):
-                texte = classe[rang_eleve]['prenom'].encode(encoding='UTF-8')
+                texte = unc(classe[rang_eleve]['prenom'])
                 cv2.putText(image_affichee,
                             texte,
                             ancre,
