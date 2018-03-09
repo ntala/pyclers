@@ -176,6 +176,7 @@ def releve_absents(classe):
     for eleve in eleves_restant :
         eleve.pop('present')
     
+    
 def affiche_eleves_restant():
     affichage_eleves_restant = Tk.Tk()
     affichage_eleves_restant.title('À ÉVALUER')
@@ -186,21 +187,20 @@ def affiche_eleves_restant():
         etiquette.pack()
     cadre_eleves_restant.pack()
     
-    def met_a_jour_liste(cadre=cadre_eleves_restant,
-                         fenetre=affichage_eleves_restant):
+    def met_a_jour_liste(fenetre=affichage_eleves_restant):
+        global eleves_restant
         cadre = fenetre.winfo_children()[0]
+        #if len(cadre.children) > len(eleves_restant):
+            #print 'toto'
+        #print str(len(cadre.children))+','+str(len(eleves_restant))
         cadre.destroy()
-        if eleves_restant == [] :
-            fenetre.destroy()
-        try :
-            cadre = Tk.Frame(fenetre)
-            for eleve in eleves_restant :
-                etiquette = Tk.Label(cadre,text = eleve['nom'] + ' ' + eleve['prenom'])
-                etiquette.pack()
-            cadre.pack()
-            fenetre.after(500, met_a_jour_liste)
-        except :
-            pass
+        cadre = Tk.Frame(fenetre)
+        for eleve in eleves_restant :
+            texte = eleve['nom'] + ' ' + eleve['prenom']
+            etiquette = Tk.Label(cadre,text = texte)
+            etiquette.pack()
+        cadre.pack()
+        fenetre.after(500, met_a_jour_liste)
     affichage_eleves_restant.after(500, met_a_jour_liste)
     affichage_eleves_restant.mainloop()
     
@@ -217,7 +217,6 @@ def scanne_flux_video(classe,camera):
                 reponses.append((identifiant,reponse))
                 rang_eleve = eleves_restant.index(classe[identifiant-1])
                 eleves_restant.pop(rang_eleve)
-                print eleves_restant
         cv2.imshow('capture',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -230,8 +229,7 @@ def scanner_en_direct(classe, camera=0):
     t = threading.Thread(target=affiche_eleves_restant)
     t.start()
     scanne_flux_video(classe, camera)
-    t.join()
-
+    
 def main(camera = 0):
     fenetre_principale = Tk.Tk()
     fenetre_principale.title("Choix de la classe")
@@ -242,18 +240,17 @@ def main(camera = 0):
     bouton_classe_2 = Tk.Button(fenetre_principale,
                                 text="Classe_test2",
                                 command=(lambda : scanner_en_direct(CLASSE_TEST_2,camera)))
+
     bouton_classe_1.pack()
     bouton_classe_2.pack()
     fenetre_principale.mainloop()
     
 if __name__ == '__main__' :
-    image = cv2.imread('img/myphoto4.jpg')
-    print reconnait_panneaux(image)
-    image = cv2.imread('img/test_15B.jpg')
-    print reconnait_panneaux(image)
-    image = cv2.imread('img/capture4.jpg')
-    print reconnait_panneaux(image)
-    #scanner_en_direct(CLASSE_TEST,1)
-    main(1)
-    
-
+    #image = cv2.imread('img/myphoto4.jpg')
+    #print reconnait_panneaux(image)
+    #image = cv2.imread('img/test_15B.jpg')
+    #print reconnait_panneaux(image)
+    #image = cv2.imread('img/capture4.jpg')
+    #print reconnait_panneaux(image)
+    scanner_en_direct(CLASSE_TEST,1)
+    #main(1)
