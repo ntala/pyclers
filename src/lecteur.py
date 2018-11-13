@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-import threading
 import os
+import threading
+import Tkinter as Tk
+import unicodedata
 from itertools import product
 
-import Tkinter as Tk
 import cv2
 import numpy as np
-
-import unicodedata
 
 from data_reference import CATALOGUE, CLASSE_TEST, CLASSE_TEST_2
 
@@ -26,7 +25,7 @@ def get_contours_topologie(image):
     blurred = cv2.blur(gray,(3,3))
     # A VOIR : les paramètres de l'algo. de canny sont-ils optimaux ?
     ced_image = cv2.Canny(blurred,100,180)
-    contours, hierarchy = cv2.findContours(ced_image, cv2.RETR_TREE,
+    image, contours, hierarchy = cv2.findContours(ced_image, cv2.RETR_TREE,
                                             cv2.CHAIN_APPROX_NONE)
     return (contours, hierarchy, gray)
 
@@ -36,7 +35,7 @@ def encadrement_contour(contour):
     le tableau des sommets du rectangle encadrant au mieux le contour.
     '''
     rect = cv2.minAreaRect(contour)
-    box = cv2.cv.BoxPoints(rect) # cv2.boxPoints(rect) for OpenCV 3.x
+    box = cv2.boxPoints(rect)
     box = np.int0(box)
     return [box]
 
