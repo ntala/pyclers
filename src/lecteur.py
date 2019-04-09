@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-import os
+# import os
 import threading
-import Tkinter as Tk
+import tkinter as Tk
 import unicodedata
-from itertools import product
+# from itertools import product
 
+import sys
+print(sys.version_info)
 import cv2
+
+# print(cv2.__version__)
 import numpy as np
 
 from data_reference import CATALOGUE, CLASSE_TEST, CLASSE_TEST_2
@@ -76,8 +80,8 @@ def extrait_identifiant(im_gris,
                                         255,
                                         cv2.THRESH_BINARY)[1]
         ECART = 5
-        for j in xrange(5) :
-            for i in xrange(5) :
+        for j in range(5) :
+            for i in range(5) :
                 xmin = 40*i+ECART
                 xmax = 40*(i+1)-ECART
                 ymin = 40*j+ECART
@@ -124,7 +128,7 @@ def extrait_identifiants(image, classe = CLASSE_TEST):
         if topologie[0] == -1 and topologie[1] == -1 \
         and topologie[2] == -1 and topologie[3] != -1:
             rang_pere = topologie[3]
-            pere = contours[rang_pere]
+#            pere = contours[rang_pere]
             topologie_pere = hierarchy[0][rang_pere]
             # les contours rectangles qui m'intéressent sont '
             # 'souvent' inclus dans eux-même
@@ -203,7 +207,7 @@ def affiche_eleves_restant():
     affichage_eleves_restant.after(500, met_a_jour_liste)
     affichage_eleves_restant.mainloop()
     
-def scanne_flux_video(classe,camera):
+def scanne_flux_video(classe,camera=0):
     global eleves_restant
     reponses = []
     cap = cv2.VideoCapture(camera)
@@ -220,10 +224,13 @@ def scanne_flux_video(classe,camera):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release
-    print reponses
+    print (reponses)
     cv2.destroyAllWindows()
     
-def scanner_en_direct(classe, camera=0):
+def scanner_en_direct(classe, camera=0, fenetre = None):
+    if fenetre :
+        fenetre.quit()
+        fenetre.destroy()
     releve_absents(classe)
     t = threading.Thread(target=affiche_eleves_restant)
     t.start()
@@ -234,11 +241,11 @@ def main(camera = 0):
     fenetre_principale.title("Choix de la classe")
     bouton_classe_1 = Tk.Button(fenetre_principale,
                                 text="Classe_test1",
-                                command=(lambda : scanner_en_direct(CLASSE_TEST,camera)))
+                                command=(lambda : scanner_en_direct(CLASSE_TEST,camera, fenetre_principale)))
     
     bouton_classe_2 = Tk.Button(fenetre_principale,
                                 text="Classe_test2",
-                                command=(lambda : scanner_en_direct(CLASSE_TEST_2,camera)))
+                                command=(lambda : scanner_en_direct(CLASSE_TEST_2,camera, fenetre_principale)))
 
     bouton_classe_1.pack()
     bouton_classe_2.pack()
@@ -251,5 +258,7 @@ if __name__ == '__main__' :
     #print reconnait_panneaux(image)
     #image = cv2.imread('img/capture4.jpg')
     #print reconnait_panneaux(image)
-    scanner_en_direct(CLASSE_TEST,1)
-    #main(1)
+    # print(cv2.__version__)
+    # print(help(cv2.cvtColor))
+    # canner_en_direct(CLASSE_TEST,0)
+    main()
