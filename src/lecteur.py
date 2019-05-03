@@ -229,12 +229,14 @@ def scanne_flux_video(classe,camera=0):
                     rang_eleve = eleves_restant.index(classe[identifiant-1])
                     eleves_restant.pop(rang_eleve)
             cv2.imshow('capture',frame)
-            print (reponses)
+            #print (reponses)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-    cap.release
+        else :
+            cap.release()
+            cv2.destroyAllWindows()
     print (reponses)
-    cv2.destroyAllWindows()
+    
     
 def scanner_en_direct(classe, camera=0, fenetre = None):
     if fenetre :
