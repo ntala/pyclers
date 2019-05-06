@@ -11,6 +11,9 @@ import numpy as np
 
 from data_reference import CATALOGUE, CLASSE_TEST, CLASSE_TEST_2
 
+print(sys.version_info)
+
+
 # from itertools import product
 
 print(sys.version_info)
@@ -132,7 +135,7 @@ def extrait_identifiants(image, classe = CLASSE_TEST):
         if topologie[0] == -1 and topologie[1] == -1 \
         and topologie[2] == -1 and topologie[3] != -1:
             rang_pere = topologie[3]
-#            pere = contours[rang_pere]
+            #pere = contours[rang_pere]
             topologie_pere = hierarchy[0][rang_pere]
             # les contours rectangles qui m'intéressent sont '
             # 'souvent' inclus dans eux-même
@@ -272,7 +275,4 @@ if __name__ == '__main__' :
     # print(cv2.__version__)
     # print(help(cv2.cvtColor))
     # canner_en_direct(CLASSE_TEST,0)
-    try :
-        main("/home/talabardon/Vidéos/Webcam/2019-05-02-145607.webm")
-    except :
-        pass
+    main("/home/talabardon/Vidéos/Webcam/2019-05-02-145607.webm")
