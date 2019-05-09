@@ -95,9 +95,9 @@ def extrait_identifiant(im_gris,
                 zone = zone_contrastee[ymin:ymax,xmin:xmax]
 
                 if cv2.mean(zone)[0]>127 :
-                    str_code += '0';
+                    str_code += '0'
                 else:
-                    str_code += '1';
+                    str_code += '1'
                 cv2.rectangle(zone_contrastee,
                               (40*i+ECART,ECART+40*j),
                               (40*(i+1)-ECART,40*(j+1)-ECART),
