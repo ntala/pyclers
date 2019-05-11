@@ -35,6 +35,8 @@ def get_contours_topologie(image):
     blurred = cv2.blur(gray,(3,3))
     # A VOIR : les paramètres de l'algo. de canny sont-ils optimaux ?
     ced_image = cv2.Canny(blurred,100,180)
+    # ced_image = cv2.Canny(blurred,50,180)
+    cv2.imshow('canny', ced_image)
     image, contours, hierarchy = cv2.findContours(ced_image, cv2.RETR_TREE,
                                             cv2.CHAIN_APPROX_NONE)
     return (contours, hierarchy, gray)
@@ -127,6 +129,7 @@ def extrait_identifiants(image, classe = CLASSE_TEST):
     """
     res=[]
     contours, hierarchy, im_gris = get_contours_topologie(image)
+    #cv2.imshow('nuance de gris', im_gris)
     for rang, contour in enumerate(contours) :
         topologie = hierarchy[0][rang]
         # le test suivant vérifie que le contour ne contient pas
